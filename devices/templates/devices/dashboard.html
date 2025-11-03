@@ -1,0 +1,19 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HomeHub Dashboard</title>
+    <link rel="stylesheet" href="{% static 'dashboard/main.css' %}">
+</head>
+<body>
+    <div id="root"></div>
+    {{ app_config|json_script:"dashboard-config" }}
+    <script>
+        window.APP_CONFIG = JSON.parse(document.getElementById("dashboard-config").textContent);
+    </script>
+    <script type="module" src="{% static 'dashboard/main.js' %}"></script>
+</body>
+</html>
