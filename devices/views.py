@@ -120,6 +120,12 @@ class DeviceViewSet(viewsets.ModelViewSet):
             ip = (device.ip or "").strip()
             if not ip:
                 continue
+            raw_meta = device.meta or {}
+            infrastructure_meta = {}
+            try:
+                infrastructure_meta = (raw_meta.get("raw") or {}).get("infrastructure") or {}
+            except AttributeError:
+                infrastructure_meta = {}
             try:
                 interface = ipaddress.ip_interface(f"{ip}/24")
                 network = interface.network
@@ -153,6 +159,8 @@ class DeviceViewSet(viewsets.ModelViewSet):
                     "device_type": device.device_type,
                     "is_online": device.is_online,
                     "last_seen": device.last_seen.isoformat() if device.last_seen else None,
+                    "role": infrastructure_meta.get("role"),
+                    "detection_reasons": infrastructure_meta.get("detection_reasons"),
                 }
             )
 

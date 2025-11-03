@@ -2,7 +2,7 @@ import ipaddress, socket, platform, subprocess, json, ssl, re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import closing
 
-PORTS = [80, 443, 554, 55443, 1883, 8008, 8009, 8080, 8443, 5357]
+PORTS = [22, 23, 80, 161, 443, 554, 55443, 1883, 8008, 8009, 8080, 8443, 5357]
 MAX_WORKERS = 32
 
 def _get_default_net():

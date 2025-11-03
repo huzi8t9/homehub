@@ -710,6 +710,19 @@ a {
   opacity: 0.75;
 }
 
+.network-node--infrastructure {
+  background: rgba(78, 205, 196, 0.12);
+  box-shadow: 0 10px 28px rgba(78, 205, 196, 0.25);
+}
+
+.network-node--router {
+  border-color: rgba(122, 229, 130, 0.6);
+}
+
+.network-node--switch {
+  border-color: rgba(255, 169, 77, 0.6);
+}
+
 .network-node__name {
   font-size: 14px;
   font-weight: 600;
@@ -718,6 +731,14 @@ a {
 .network-node__ip {
   font-size: 12px;
   color: var(--text-muted);
+}
+
+.network-node__role {
+  margin-top: 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .network-node:active {
@@ -732,13 +753,22 @@ a {
 
 .network-cluster__list-item {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr;
+  grid-template-columns: 1.2fr 1fr 1fr 0.8fr;
   gap: 12px;
   font-size: 13px;
   color: var(--text-muted);
   padding: 8px 12px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.03);
+}
+
+.network-cluster__list-role {
+  justify-self: end;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .network-cluster__list-name {
@@ -757,4 +787,3 @@ a {
   padding: 12px;
   overflow: auto;
 }
-
