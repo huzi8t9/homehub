@@ -4,6 +4,9 @@ from django.utils import timezone
 DEVICE_TYPES = [
     ("light.yeelight", "Yeelight Light"),
     ("doorbell.ring", "Ring Doorbell"),
+    ("media.cast", "Google Cast Device"),
+    ("network.cisco_router", "Cisco Router"),
+    ("network.cisco_switch", "Cisco Switch"),
     ("unknown", "Unknown"),
 ]
 

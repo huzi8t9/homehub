@@ -144,32 +144,53 @@ export default function NetworkCluster({ cluster }) {
           <div className="network-node__name">{cluster.gateway.name}</div>
           <div className="network-node__ip">{cluster.gateway.ip}</div>
         </div>
-        {nodePositions.map(({ device, position }) => (
-          <div
-            key={device.id}
-            className={`network-node ${device.is_online ? "network-node--online" : "network-node--offline"}`}
-            style={position}
-            onMouseDown={(event) => startDrag(device.id, event.clientX, event.clientY)}
-            onTouchStart={(event) => {
-              const touch = event.touches[0];
-              if (touch) {
-                startDrag(device.id, touch.clientX, touch.clientY);
-              }
-            }}
-          >
-            <div className="network-node__name">{device.name || device.ip}</div>
-            <div className="network-node__ip">{device.ip}</div>
-          </div>
-        ))}
+        {nodePositions.map(({ device, position }) => {
+          const roleLabel = device.role ? device.role.charAt(0).toUpperCase() + device.role.slice(1) : null;
+          const nodeClasses = [
+            "network-node",
+            device.is_online ? "network-node--online" : "network-node--offline",
+          ];
+          if (device.role) {
+            nodeClasses.push("network-node--infrastructure");
+            nodeClasses.push(`network-node--${device.role}`);
+          }
+          const detectionHint =
+            Array.isArray(device.detection_reasons) && device.detection_reasons.length
+              ? `Detected via ${device.detection_reasons.join(", ")}`
+              : undefined;
+          return (
+            <div
+              key={device.id}
+              className={nodeClasses.filter(Boolean).join(" ")}
+              style={position}
+              onMouseDown={(event) => startDrag(device.id, event.clientX, event.clientY)}
+              onTouchStart={(event) => {
+                const touch = event.touches[0];
+                if (touch) {
+                  startDrag(device.id, touch.clientX, touch.clientY);
+                }
+              }}
+              title={detectionHint}
+            >
+              <div className="network-node__name">{device.name || device.ip}</div>
+              <div className="network-node__ip">{device.ip}</div>
+              {roleLabel ? <div className="network-node__role">{roleLabel}</div> : null}
+            </div>
+          );
+        })}
       </div>
       <ul className="network-cluster__list">
-        {devices.map((device) => (
-          <li key={`list-${device.id}`} className="network-cluster__list-item">
-            <span className="network-cluster__list-name">{device.name || device.ip}</span>
-            <span className="network-cluster__list-ip">{device.ip}</span>
-            <span className="network-cluster__list-vendor">{device.vendor || "Unknown vendor"}</span>
-          </li>
-        ))}
+        {devices.map((device) => {
+          const roleLabel = device.role ? device.role.charAt(0).toUpperCase() + device.role.slice(1) : null;
+          return (
+            <li key={`list-${device.id}`} className="network-cluster__list-item">
+              <span className="network-cluster__list-name">{device.name || device.ip}</span>
+              <span className="network-cluster__list-ip">{device.ip}</span>
+              <span className="network-cluster__list-vendor">{device.vendor || "Unknown vendor"}</span>
+              <span className="network-cluster__list-role">{roleLabel || "\u2013"}</span>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

@@ -16,6 +16,20 @@ DEFAULT_DISCOVERY_INTERVAL = 60  # seconds
 MIN_INTERVAL = 5
 
 TI_MAC_PREFIXES = ["9C:76:13", "70:FF:76", "C8:DF:84"]
+CISCO_MAC_PREFIXES = [
+    "00:1B:0D",
+    "00:1E:E5",
+    "00:22:90",
+    "00:23:04",
+    "00:24:97",
+    "00:25:9C",
+    "00:26:CB",
+    "00:30:80",
+    "3C:07:54",
+    "3C:16:D8",
+    "CC:EF:48",
+    "D0:67:E5",
+]
 
 def _emit(payload: dict):
     layer = get_channel_layer()
@@ -36,6 +50,7 @@ def classify_and_caps(raw: dict):
     host = (raw.get("hostname") or "").lower()
     http = raw.get("http") or {}
     server = (http.get("server") or "").lower()
+    mac = (raw.get("mac") or "").upper().replace("-", ":")
 
     # Yeelight LAN
     if 55443 in ports and raw.get("yeelight"):
@@ -94,8 +109,43 @@ def classify_and_caps(raw: dict):
     # Amazon devices occasionally show as amazon-*. Port 55443 is not a Yeelight indicator here.
     if host.startswith("amazon-"):
         return ("unknown", [], "amazon", raw.get("hostname") or "", None)
-    
-    mac = (raw.get("mac") or "").upper()
+
+    detection_reasons = []
+    if mac and mac.startswith(tuple(CISCO_MAC_PREFIXES)):
+        detection_reasons.append("mac_prefix")
+    if "cisco" in host:
+        detection_reasons.append("hostname")
+    if "cisco" in server:
+        detection_reasons.append("http_server")
+
+    if detection_reasons:
+        ip = raw.get("ip") or ""
+        # Assume router when hostname hints or IP looks like a default gateway.
+        is_router = any(keyword in host for keyword in ("router", "gw", "gateway"))
+        if not is_router:
+            is_router = ip.endswith(".1")
+
+        role = "router" if is_router else "switch"
+
+        caps = []
+        for capability, condition in (
+            ("ping", True),
+            ("ssh", 22 in ports),
+            ("telnet", 23 in ports),
+            ("snmp", 161 in ports),
+        ):
+            if condition and capability not in caps:
+                caps.append(capability)
+
+        name = raw.get("hostname") or f"Cisco {'Router' if is_router else 'Switch'}"
+        metadata = {
+            "infrastructure": {
+                "role": role,
+                "detection_reasons": detection_reasons,
+            }
+        }
+        return (f"network.cisco_{role}", caps, "Cisco", name, metadata)
+
     if mac.startswith(tuple(TI_MAC_PREFIXES)):
         device_type = "sensor.ti"
         vendor = "Texas Instruments"
